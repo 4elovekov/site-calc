@@ -4,14 +4,14 @@
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Онлайн калькулятор</title>
+		<title>Калькулятор ипотеки</title>
 		<link rel="stylesheet" href="./css/main.css" />
 		<link rel="stylesheet" href="./libs/noUiSlider/nouislider.css">
 	</head>
 	<body>
 
 		<div class="container">
-			<div class="title">Онлайн калькулятор</div>
+			<div class="title">Калькулятор ипотеки</div>
 			<div class="row">
 				<form id="form" class="col-left">
 
@@ -42,7 +42,7 @@
 							<div class="param__range-slider" id="slider-cost"></div>
 
 							<div class="param__limits limit">
-								<div class="limit__from">375 тыс. Р</div>
+								<div class="limit__from">370 тыс. Р</div>
 								<div class="limit__50">10 млн Р</div>
 								<div class="limit__to">100 млн Р</div>
 							</div>
@@ -53,7 +53,7 @@
 								<div class="param__title">Первоначальный взнос</div>
 								<input type="text" class="param__value" value="4980000" id="input-downpayment">
 							</div>
-							<div class="param__range-slider"></div>
+							<div class="param__range-slider" id="slider-downpayment"></div>
 
 							<div class="param__limits limit">
 								<div class="limit__from">15%</div>
@@ -66,7 +66,7 @@
 								<div class="param__title">Срок кредита</div>
 								<input type="text" class="param__value" value="12" id="input-term">
 							</div>
-							<div class="param__range-slider"></div>
+							<div class="param__range-slider" id="slider-term"></div>
 
 							<div class="param__limits limit">
 								<div class="limit__from">1 год</div>
@@ -106,11 +106,13 @@
 			</div>
 		</div>
 
+		<script src="./libs/wNumb/wNumb.min.js"></script>
+		<script src="./libs/noUiSlider/nouislider.min.js"></script>
 		<script src="./libs/cleaveJS/cleave.min.js"></script>
+
 		<script src="./js/formatters.js" type="module"></script>
 		<script src="./js/programRates.js" type="module"></script>
 		<script src="./js/formatInputs.js" type="module"></script>
-
 
     </body>
 </html>
