@@ -35,15 +35,24 @@ form.addEventListener('input', function () {
 
 function calcMortgage() {
 
-    // Проверка чтобы стоимость не была больше максимальной
+    // Проверка чтобы стоимость не была больше максимальной и меньше минимальной
     let cost = +cleaveCost.getRawValue();
     if (cost > maxPrice) {
         cost = maxPrice;
     }
+    
+    if (cost < minPrice) {
+        cost = minPrice;
+    }
 
-    let DownPayment = cleaveDownPayment.getRawValue();
+    // Проверка чтобы DownPayment не был больше максимума и меньше минимума
+    let DownPayment = +cleaveDownPayment.getRawValue();
     if (DownPayment > maxPrice * 0.9) {
         DownPayment = maxPrice * 0.9;
+    }
+
+    if (DownPayment < minPrice * 0.15) {
+        DownPayment = minPrice * 0.15;
     }
 
     // Общая сумма кредита
@@ -63,6 +72,7 @@ function calcMortgage() {
 
     // Отображение ежемесячного платежа
     totalMonthPayment.innerText = priceFormatter.format(monthPayment);
+
 }
 
 // Slider Cost
@@ -91,6 +101,22 @@ noUiSlider.create(sliderCost, {
 sliderCost.noUiSlider.on('slide', function () {
     const sliderValue = parseInt(sliderCost.noUiSlider.get(true));
     cleaveCost.setRawValue(sliderValue);
+
+    // Зависимость границ DownPayment от стоимости
+    const value = +cleaveCost.getRawValue();
+    const percentMin = value * 0.15;
+    const percentMax = value * 0.90;
+    sliderDownPayment.noUiSlider.updateOptions({
+        range: {
+            min: percentMin,
+            max: percentMax,
+        }
+    })    
+    
+    // Пересчёт значения в форме DownPayment
+    const sliderDownPaymentValue = parseInt(sliderDownPayment.noUiSlider.get(true));
+    cleaveDownPayment.setRawValue(sliderDownPaymentValue);
+
     calcMortgage();
 });
 
@@ -98,14 +124,14 @@ sliderCost.noUiSlider.on('slide', function () {
 const sliderDownPayment = document.getElementById('slider-downpayment');
 
 noUiSlider.create(sliderDownPayment, {
-    start: 1000000,
+    start: 3000000,
     connect: 'lower',
-    tooltips: true,
+    //tooltips: true,
     step: 100000,
     range: {
-        'min': 100000,
+        'min': 1800000,
         '50%': [10000000, 1000000],
-        'max': 90000000,
+        'max': 10800000,
     },
 
     format: wNumb({
@@ -116,7 +142,7 @@ noUiSlider.create(sliderDownPayment, {
 });
 
 
-sliderDownPayment.noUiSlider.on('update', function () {
+sliderDownPayment.noUiSlider.on('slide', function () {
     const sliderValue = parseInt(sliderDownPayment.noUiSlider.get(true));
     cleaveDownPayment.setRawValue(sliderValue);
     calcMortgage();
@@ -158,8 +184,15 @@ inputCost.addEventListener('input', function () {
     sliderDownPayment.noUiSlider.set(value * 0.15);
 
     // Проверки на max и min цену
-    if (value > maxPrice || value < minPrice) inputCost.closest('.param__details').classList.add('param__details--error');
-    if (value <= maxPrice || value < minPrice) inputCost.closest('.param__details').classList.remove('param__details--error');
+    if (value > maxPrice || value < minPrice) {
+        inputCost.closest('.param__details').classList.add('param__details--error');
+        inputDownPayment.closest('.param__details').classList.add('param__details--error');
+    }
+
+    if (value <= maxPrice || value <= minPrice) {
+        inputCost.closest('.param__details').classList.remove('param__details--error');
+        inputDownPayment.closest('.param__details').classList.remove('param__details--error');
+    }
 
     // Зависимость начального взноса от стоимости
     const percentMin = value * 0.15;
@@ -171,13 +204,90 @@ inputCost.addEventListener('input', function () {
             max: percentMax,
         }
     })
+
+    // Пересчёт значения в форме DownPayment
+    const sliderDownPaymentValue = parseInt(sliderDownPayment.noUiSlider.get(true));
+    cleaveDownPayment.setRawValue(sliderDownPaymentValue);
 });
 
 inputCost.addEventListener('change', function () {
     const value = +cleaveCost.getRawValue();
-    if (value >= maxPrice || value <= minPrice) {
+    if (value >= maxPrice) {
         inputCost.closest('.param__details').classList.remove('param__details--error');
+        inputDownPayment.closest('.param__details').classList.remove('param__details--error');
         cleaveCost.setRawValue(maxPrice);
+
+        // Зависимость границ DownPayment от стоимости
+        const percentMin = maxPrice * 0.15;
+        const percentMax = maxPrice * 0.90;
+        sliderDownPayment.noUiSlider.updateOptions({
+            range: {
+                min: percentMin,
+                max: percentMax,
+        }
+        })
         calcMortgage();
+    }
+
+    if (value <= minPrice) {
+        inputCost.closest('.param__details').classList.remove('param__details--error');
+        inputDownPayment.closest('.param__details').classList.remove('param__details--error');
+        cleaveCost.setRawValue(minPrice);
+
+        // Зависимость границ DownPayment от стоимости
+        const percentMin = minPrice * 0.15;
+        const percentMax = minPrice * 0.90;
+        sliderDownPayment.noUiSlider.updateOptions({
+            range: {
+                min: percentMin,
+                max: percentMax,
+        }
+        })
+        calcMortgage();
+    }
+
+    // Пересчёт значения в форме DownPayment
+    const sliderDownPaymentValue = parseInt(sliderDownPayment.noUiSlider.get(true));
+    cleaveDownPayment.setRawValue(sliderDownPaymentValue);
+});
+
+// Форматирование inputDownPayment
+inputDownPayment.addEventListener('input', function () {
+    const valueCost = +cleaveCost.getRawValue();
+    const valueDownPayment = +cleaveDownPayment.getRawValue();
+    
+
+    sliderDownPayment.noUiSlider.set(valueDownPayment);
+
+    if (valueDownPayment > valueCost * 0.9 || valueDownPayment < valueCost * 0.15) {
+        inputDownPayment.closest('.param__details').classList.add('param__details--error');
+    }
+
+    /*if (valueDownPayment <= valueCost * 0.9 || valueDownPayment >= valueCost * 0.15) {
+        console.log('True');
+        inputCost.closest('.param__details').classList.remove('param__details--error');
+        inputDownPayment.closest('.param__details').classList.remove('param__details--error');
+    }*/
+});
+
+inputDownPayment.addEventListener('change', function () {
+    const valueCost = +cleaveCost.getRawValue();
+    const valueDownPayment = +cleaveDownPayment.getRawValue();
+
+    if (valueDownPayment >= valueCost * 0.9) {
+        inputCost.closest('.param__details').classList.remove('param__details--error');
+        inputDownPayment.closest('.param__details').classList.remove('param__details--error');
+        cleaveDownPayment.setRawValue(valueCost * 0.9);
+
+        calcMortgage();
+    }
+
+    if (valueDownPayment <= valueCost * 0.15) {
+        inputCost.closest('.param__details').classList.remove('param__details--error');
+        inputDownPayment.closest('.param__details').classList.remove('param__details--error');
+        cleaveDownPayment.setRawValue(valueCost * 0.15);
+
+        calcMortgage();
+
     }
 });
