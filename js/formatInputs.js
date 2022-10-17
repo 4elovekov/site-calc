@@ -80,6 +80,7 @@ const sliderCost = document.getElementById('slider-cost');
 
 noUiSlider.create(sliderCost, {
     start: 12000000,
+    behaviour: 'snap',
     connect: 'lower',
     //tooltips: true,
     step: 10000,
@@ -125,6 +126,7 @@ const sliderDownPayment = document.getElementById('slider-downpayment');
 
 noUiSlider.create(sliderDownPayment, {
     start: 3000000,
+    behaviour: 'snap',
     connect: 'lower',
     //tooltips: true,
     step: 100000,
@@ -153,6 +155,7 @@ const sliderTerm = document.getElementById('slider-term');
 
 noUiSlider.create(sliderTerm, {
     start: 15,
+    behaviour: 'snap',
     connect: 'lower',
     tooltips: true,
     step: 1,
